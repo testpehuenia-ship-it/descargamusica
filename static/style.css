@@ -1,0 +1,54 @@
+/* Custom styles for SpotiDownloader */
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: #0f0f13;
+}
+
+/* Custom Scrollbar */
+.scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+    background: #141419;
+    border-radius: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #2a2a35;
+    border-radius: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: #1DB954;
+}
+
+/* Custom HTML5 Audio Player Styling */
+audio::-webkit-media-controls-panel {
+    background-color: #18181f;
+}
+
+audio::-webkit-media-controls-current-time-display,
+audio::-webkit-media-controls-time-remaining-display {
+    color: #1DB954;
+}
+
+/* Soundwave Equalizer Animation */
+@keyframes soundwave {
+    0%, 100% { height: 6px; }
+    50% { height: 22px; }
+}
+
+.equalizer-bar {
+    width: 3.5px;
+    background-color: #1DB954;
+    border-radius: 2px;
+    display: inline-block;
+    animation: soundwave 1.1s ease-in-out infinite;
+}
+
+.equalizer-bar:nth-child(1) { animation-delay: 0.0s; }
+.equalizer-bar:nth-child(2) { animation-delay: 0.25s; }
+.equalizer-bar:nth-child(3) { animation-delay: 0.5s; }
+.equalizer-bar:nth-child(4) { animation-delay: 0.75s; }

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpotiDownloader - Plataforma de Descarga de Spotify</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-[#0f0f13] text-gray-100 font-sans min-h-screen flex flex-col justify-between antialiased selection:bg-[#1DB954] selection:text-black">
+
+    <!-- Header -->
+    <header class="border-b border-gray-800/80 bg-[#121216]/80 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="window.location.reload()">
+                <div class="w-10 h-10 rounded-full bg-[#1DB954] flex items-center justify-center text-black font-bold shadow-lg shadow-[#1DB954]/20">
+                    <i class="fa-brands fa-spotify text-2xl"></i>
+                </div>
+                <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-gray-200 to-[#1DB954] bg-clip-text text-transparent">
+                    SpotiDownloader
+                </span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#1DB954]/10 text-[#1DB954] border border-[#1DB954]/20">
+                    <span class="w-2 h-2 rounded-full bg-[#1DB954] mr-2 animate-pulse"></span> spotDL v4.5 Active
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-4xl w-full mx-auto px-4 py-8 sm:py-12 space-y-8">
+        
+        <!-- Hero Title -->
+        <div class="text-center space-y-3">
+            <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
+                Descarga Música de <span class="text-[#1DB954]">Spotify</span>
+            </h1>
+            <p class="text-gray-400 text-sm sm:text-base max-w-xl mx-auto">
+                Obtén canciones, álbumes y listas de reproducción completas en alta calidad (320 kbps) con carátulas y metadatos ID3 integrados.
+            </p>
+        </div>
+
+        <!-- Input & Search Section -->
+        <div class="bg-[#18181f] border border-gray-800/80 rounded-2xl p-4 sm:p-6 shadow-2xl shadow-black/40 space-y-4">
+            <div class="flex flex-col sm:flex-row items-center gap-3">
+                <div class="relative flex-grow w-full">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500">
+                        <i class="fa-solid fa-[#1DB954] fa-link"></i>
+                    </div>
+                    <input 
+                        type="text" 
+                        id="spotifyUrl" 
+                        placeholder="Pega el enlace de canción, álbum o playlist de Spotify..."
+                        class="w-full pl-11 pr-10 py-3.5 bg-[#0f0f13] border border-gray-700/60 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#1DB954] focus:ring-1 focus:ring-[#1DB954] transition text-sm sm:text-base"
+                    >
+                    <button id="clearBtn" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <button 
+                    id="analyzeBtn" 
+                    class="w-full sm:w-auto px-6 py-3.5 bg-[#1DB954] hover:bg-[#1ed760] text-black font-bold rounded-xl transition flex items-center justify-center space-x-2 shadow-lg shadow-[#1DB954]/20 text-sm sm:text-base whitespace-nowrap cursor-pointer"
+                >
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <span>Analizar</span>
+                </button>
+            </div>
+
+            <!-- Options Row -->
+            <div class="flex flex-wrap items-center justify-between gap-4 pt-2 text-xs sm:text-sm text-gray-400 border-t border-gray-800/60">
+                <div class="flex flex-wrap items-center gap-4">
+                    <div class="flex items-center space-x-2">
+                        <label for="formatSelect" class="font-medium">Formato:</label>
+                        <select id="formatSelect" class="bg-[#0f0f13] border border-gray-700 rounded-lg px-2.5 py-1 text-gray-200 focus:outline-none focus:border-[#1DB954]">
+                            <option value="mp3">MP3 (Recomendado)</option>
+                            <option value="m4a">M4A (AAC)</option>
+                            <option value="flac">FLAC (Sin pérdida)</option>
+                            <option value="wav">WAV</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <label for="bitrateSelect" class="font-medium">Calidad:</label>
+                        <select id="bitrateSelect" class="bg-[#0f0f13] border border-gray-700 rounded-lg px-2.5 py-1 text-gray-200 focus:outline-none focus:border-[#1DB954]">
+                            <option value="320k">320 kbps (Máxima)</option>
+                            <option value="256k">256 kbps</option>
+                            <option value="192k">192 kbps</option>
+                            <option value="128k">128 kbps</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <label for="outputDirInput" class="font-medium flex items-center">
+                            <i class="fa-solid fa-folder-open text-[#1DB954] mr-1"></i> Destino:
+                        </label>
+                        <input 
+                            type="text" 
+                            id="outputDirInput" 
+                            placeholder="./downloads (predeterminado)"
+                            class="bg-[#0f0f13] border border-gray-700 rounded-lg px-2.5 py-1 text-gray-200 placeholder-gray-600 focus:outline-none focus:border-[#1DB954] w-48 sm:w-56 text-xs"
+                        >
+                    </div>
+                </div>
+
+                <div class="text-gray-500 text-xs flex items-center">
+                    <i class="fa-solid fa-shield-halved text-[#1DB954] mr-1.5"></i> Metadatos e imágenes 100% originales
+                </div>
+            </div>
+        </div>
+
+        <!-- Loader Spinner -->
+        <div id="loadingSpinner" class="hidden flex flex-col items-center justify-center py-12 space-y-4">
+            <div class="w-12 h-12 border-4 border-[#1DB954]/20 border-t-[#1DB954] rounded-full animate-spin"></div>
+            <p class="text-gray-400 text-sm animate-pulse">Obteniendo metadatos desde Spotify...</p>
+        </div>
+
+        <!-- Preview & Metadata Card -->
+        <div id="previewCard" class="hidden bg-[#18181f] border border-gray-800/80 rounded-2xl overflow-hidden shadow-2xl transition duration-300">
+            <div class="p-6 sm:p-8 flex flex-col md:flex-row items-center md:items-start gap-6">
+                <!-- Cover Image -->
+                <div class="relative group flex-shrink-0">
+                    <img id="coverImg" src="" alt="Portada" class="w-44 h-44 sm:w-52 sm:h-52 object-cover rounded-xl shadow-2xl border border-gray-700/50">
+                    <div id="typeBadge" class="absolute top-3 left-3 px-2.5 py-1 bg-black/80 backdrop-blur-md rounded-md text-xs font-semibold text-[#1DB954] border border-white/10 uppercase tracking-wider">
+                        Canción
+                    </div>
+                </div>
+
+                <!-- Info Details -->
+                <div class="flex-grow text-center md:text-left space-y-4 w-full">
+                    <div>
+                        <h2 id="mediaTitle" class="text-xl sm:text-2xl font-bold text-white line-clamp-2">Título de la Canción</h2>
+                        <p id="mediaArtist" class="text-gray-400 text-base font-medium mt-1">Artista</p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center justify-center md:justify-start gap-3 text-xs text-gray-400">
+                        <span id="trackCountBadge" class="px-3 py-1 bg-[#22222b] rounded-full flex items-center">
+                            <i class="fa-solid fa-music mr-1.5 text-[#1DB954]"></i> <span id="trackCount">1 Canción</span>
+                        </span>
+                        <span class="px-3 py-1 bg-[#22222b] rounded-full flex items-center">
+                            <i class="fa-solid fa-bolt mr-1.5 text-[#1DB954]"></i> Alta Calidad ID3
+                        </span>
+                    </div>
+
+                    <!-- Action Button -->
+                    <div class="pt-2">
+                        <button 
+                            id="downloadBtn" 
+                            class="w-full sm:w-auto px-8 py-4 bg-[#1DB954] hover:bg-[#1ed760] text-black font-extrabold rounded-xl transition transform active:scale-95 flex items-center justify-center space-x-3 shadow-xl shadow-[#1DB954]/25 text-base cursor-pointer"
+                        >
+                            <i class="fa-solid fa-download text-lg"></i>
+                            <span>Iniciar Descarga</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tracklist accordion (if playlist/album) -->
+            <div id="trackListContainer" class="hidden border-t border-gray-800 bg-[#141419] p-4 sm:p-6 space-y-3">
+                <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider flex items-center justify-between">
+                    <span>Canciones incluidas</span>
+                    <span id="trackListCount" class="text-xs text-[#1DB954]">0 canciones</span>
+                </h3>
+                <div id="trackList" class="max-h-60 overflow-y-auto space-y-2 pr-2 scrollbar-thin">
+                    <!-- Tracks dynamically injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Progress Box -->
+        <div id="progressBox" class="hidden bg-[#18181f] border border-[#1DB954]/30 rounded-2xl p-6 sm:p-8 shadow-2xl shadow-[#1DB954]/10 space-y-6">
+            <!-- Header Row with Active Animated Equalizer, Percentage and Stop Button -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <!-- Equalizer Sound Wave Animation -->
+                    <div class="w-10 h-10 rounded-xl bg-[#1DB954]/10 border border-[#1DB954]/30 flex items-center justify-center space-x-1 p-2">
+                        <span class="equalizer-bar"></span>
+                        <span class="equalizer-bar"></span>
+                        <span class="equalizer-bar"></span>
+                        <span class="equalizer-bar"></span>
+                    </div>
+                    <div>
+                        <span class="text-xs font-semibold uppercase tracking-wider text-[#1DB954] flex items-center">
+                            <span class="w-2 h-2 rounded-full bg-[#1DB954] mr-2 animate-ping"></span>
+                            Descarga en curso...
+                        </span>
+                        <h4 id="statusText" class="text-base font-bold text-white truncate max-w-sm sm:max-w-md mt-0.5">
+                            Iniciando descarga de canciones...
+                        </h4>
+                    </div>
+                </div>
+                
+                <!-- Big Badge Percentage & Stop Button -->
+                <div class="flex items-center space-x-4">
+                    <div class="flex flex-col items-end">
+                        <span id="progressPercent" class="text-2xl sm:text-3xl font-extrabold text-[#1DB954] tracking-tight font-mono">0%</span>
+                        <span class="text-[11px] text-gray-500 font-medium">En proceso...</span>
+                    </div>
+                    <button 
+                        id="stopBtn" 
+                        class="px-3.5 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-semibold rounded-xl text-xs transition flex items-center space-x-1.5 cursor-pointer active:scale-95"
+                        title="Detener la descarga actual"
+                    >
+                        <i class="fa-solid fa-square text-xs"></i>
+                        <span>Detener</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Animated Progress Bar Container -->
+            <div class="space-y-2">
+                <div class="w-full bg-gray-900 border border-gray-800 rounded-full h-4 overflow-hidden p-0.5 relative shadow-inner">
+                    <div id="progressBar" class="bg-gradient-to-r from-[#1DB954] via-[#1ed760] to-[#1DB954] h-full rounded-full transition-all duration-500 w-0 relative overflow-hidden shadow-lg shadow-[#1DB954]/40">
+                        <!-- Shimmer animation overlay -->
+                        <div class="absolute inset-0 bg-white/20 animate-pulse"></div>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center text-xs text-gray-400 font-medium px-1">
+                    <span id="subStatusText" class="flex items-center">
+                        <i class="fa-solid fa-cloud-arrow-down mr-1.5 text-[#1DB954] animate-bounce"></i>
+                        Obteniendo audio y codificando metadatos ID3
+                    </span>
+                    <span id="songCounterText" class="text-[#1DB954] font-semibold">Procesando pistas</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Download Ready / Results Container -->
+        <div id="resultsCard" class="hidden bg-[#18181f] border border-[#1DB954]/40 rounded-2xl p-6 sm:p-8 shadow-2xl shadow-[#1DB954]/10 space-y-6 text-center">
+            <div class="w-16 h-16 bg-[#1DB954]/20 border border-[#1DB954] text-[#1DB954] rounded-full flex items-center justify-center mx-auto text-3xl">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            
+            <div class="space-y-1">
+                <h3 class="text-2xl font-bold text-white">¡Descarga Lista!</h3>
+                <p class="text-gray-400 text-sm">Los archivos han sido procesados correctamente.</p>
+            </div>
+
+            <!-- Audio Player Preview (for single tracks) -->
+            <div id="audioPlayerContainer" class="hidden max-w-md mx-auto pt-2">
+                <audio id="audioPreview" controls class="w-full rounded-xl bg-gray-900"></audio>
+            </div>
+
+            <!-- Download Buttons -->
+            <div id="downloadButtons" class="flex flex-wrap items-center justify-center gap-4 pt-2">
+                <!-- Dynamically injected download links -->
+            </div>
+        </div>
+
+        <!-- Error Alert -->
+        <div id="errorAlert" class="hidden bg-red-950/40 border border-red-800/60 rounded-xl p-4 text-red-300 text-sm flex items-start space-x-3">
+            <i class="fa-solid fa-triangle-exclamation text-red-500 text-lg flex-shrink-0 mt-0.5"></i>
+            <div id="errorMessage" class="flex-grow">
+                Ocurrió un error al procesar el enlace.
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-800/60 bg-[#121216] py-6 text-center text-xs text-gray-500 space-y-2">
+        <p>Desarrollado con <strong>spotDL</strong> y <strong>FastAPI</strong> — Herramienta de uso personal y educativo.</p>
+        <p class="text-gray-600">Spotify es una marca registrada de Spotify AB.</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
