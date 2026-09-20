@@ -235,8 +235,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const files = task.downloaded_files || [];
 
-        // Si se generó un archivo ZIP
-        if (task.zip_file) {
+        // Si se generaron archivos ZIP (fraccionados por partes o único)
+        if (task.zip_files && task.zip_files.length > 0) {
+            const zipContainer = document.createElement('div');
+            zipContainer.className = 'w-full flex flex-col items-center gap-3 mb-4';
+            
+            task.zip_files.forEach((zipInfo) => {
+                const zipUrl = `/api/files/${taskId}/${encodeURIComponent(zipInfo.filename)}`;
+                const zipBtn = document.createElement('a');
+                zipBtn.href = zipUrl;
+                zipBtn.download = zipInfo.filename;
+                zipBtn.className = 'w-full sm:w-auto px-8 py-4 bg-[#1DB954] hover:bg-[#1ed760] text-black font-extrabold rounded-xl transition shadow-xl shadow-[#1DB954]/25 flex items-center justify-center space-x-3 text-base';
+                zipBtn.innerHTML = `<i class="fa-solid fa-file-zipper text-xl"></i><span>${escapeHtml(zipInfo.label)}</span>`;
+                zipContainer.appendChild(zipBtn);
+            });
+            downloadButtons.appendChild(zipContainer);
+        } else if (task.zip_file) {
             const zipUrl = `/api/files/${taskId}/${encodeURIComponent(task.zip_file)}`;
             const zipBtn = document.createElement('a');
             zipBtn.href = zipUrl;

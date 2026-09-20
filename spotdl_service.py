@@ -36,7 +36,6 @@ def extract_spotify_info(url: str) -> Dict[str, Any]:
     init_spotify_client()
     songs = get_simple_songs([url])
 
-
     if not songs:
         raise ValueError("No se pudieron encontrar canciones en la URL proporcionada.")
 
@@ -89,8 +88,8 @@ def cancel_download_task(task_id: str) -> bool:
 
 def run_spotdl_download_process(task_id: str, url: str, output_format: str, bitrate: str, custom_output_dir: Optional[str] = None):
     """
-    Ejecuta el proceso de descarga con spotdl CLI en segundo plano
-    y actualiza el diccionario de progreso.
+    Ejecuta el proceso de descarga con spotdl CLI en segundo plano,
+    fracciona listas grandes en archivos ZIP por partes y actualiza el progreso.
     """
     task = download_tasks.get(task_id)
     if not task:
@@ -181,15 +180,37 @@ def run_spotdl_download_process(task_id: str, url: str, output_format: str, bitr
 
         task["downloaded_files"] = downloaded_files
 
-        # Si hay más de un archivo, empaquetar en ZIP en la carpeta predeterminada
+        # Fraccionar en archivos ZIP por partes (máximo 100 canciones por archivo ZIP)
         if len(downloaded_files) > 1:
-            zip_filename = f"spotify_download_{task_id[:8]}.zip"
-            zip_path = os.path.join(DEFAULT_DOWNLOAD_DIR, zip_filename)
-            with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-                for file_info in downloaded_files:
-                    full_file_path = file_info["full_path"]
-                    zipf.write(full_file_path, arcname=file_info["filename"])
-            task["zip_file"] = zip_filename
+            zip_files = []
+            chunk_size = 100  # Tamaño del lote por ZIP
+            total_chunks = (len(downloaded_files) + chunk_size - 1) // chunk_size
+
+            for chunk_idx in range(total_chunks):
+                start_i = chunk_idx * chunk_size
+                end_i = min((chunk_idx + 1) * chunk_size, len(downloaded_files))
+                chunk_files = downloaded_files[start_i:end_i]
+
+                if total_chunks == 1:
+                    zip_filename = f"spotify_download_{task_id[:8]}.zip"
+                    label = f"Descargar Todo (.ZIP - {len(chunk_files)} canciones)"
+                else:
+                    zip_filename = f"spotify_download_{task_id[:8]}_Parte_{chunk_idx+1}_de_{total_chunks}.zip"
+                    label = f"Descargar Parte {chunk_idx+1} de {total_chunks} (Canciones {start_i+1} a {end_i})"
+
+                zip_path = os.path.join(DEFAULT_DOWNLOAD_DIR, zip_filename)
+                with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                    for file_info in chunk_files:
+                        full_file_path = file_info["full_path"]
+                        zipf.write(full_file_path, arcname=file_info["filename"])
+
+                zip_files.append({
+                    "filename": zip_filename,
+                    "label": label,
+                    "count": len(chunk_files)
+                })
+
+            task["zip_files"] = zip_files
 
         task["progress"] = 100
         task["status"] = "completed"
