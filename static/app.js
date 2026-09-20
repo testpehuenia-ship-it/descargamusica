@@ -60,6 +60,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     analyzeBtn.addEventListener('click', analyzeUrl);
 
+    // Función auxiliar para realizar fetch con reintentos automáticos (para el cold-start de Render)
+    async function fetchWithRetry(url, options, retries = 2, delayMs = 2500) {
+        for (let i = 0; i <= retries; i++) {
+            try {
+                const res = await fetch(url, options);
+                const contentType = res.headers.get('content-type') || '';
+
+                if (contentType.includes('application/json')) {
+                    const data = await res.json();
+                    if (!res.ok) {
+                        throw new Error(data.detail || `Error (${res.status}): No se pudo procesar la solicitud.`);
+                    }
+                    return data;
+                } else if (res.status >= 500 && i < retries) {
+                    await new Promise(r => setTimeout(r, delayMs));
+                    continue;
+                } else {
+                    throw new Error('El servidor se está iniciando. Por favor reintenta en unos segundos.');
+                }
+            } catch (err) {
+                if (i === retries) throw err;
+                await new Promise(r => setTimeout(r, delayMs));
+            }
+        }
+    }
+
     async function analyzeUrl() {
         const url = urlInput.value.trim();
         if (!url) {
@@ -73,25 +99,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (spinnerMsg) spinnerMsg.textContent = 'Obteniendo metadatos desde Spotify (esto puede tomar unos segundos)...';
 
         try {
-            const res = await fetch('/api/info', {
+            const data = await fetchWithRetry('/api/info', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ url })
             });
 
-            const data = await res.json();
             loadingSpinner.classList.add('hidden');
-
-            if (!res.ok) {
-                throw new Error(data.detail || 'Error al obtener información de Spotify.');
-            }
-
             currentMediaInfo = data;
             renderPreview(data);
 
         } catch (err) {
             loadingSpinner.classList.add('hidden');
-            showError(err.message);
+            showError(err.message || 'Error al conectar con el servidor.');
         }
     }
 
@@ -143,23 +163,18 @@ document.addEventListener('DOMContentLoaded', () => {
         updateProgress(5, 'Iniciando descarga de canciones...');
 
         try {
-            const res = await fetch('/api/download', {
+            const data = await fetchWithRetry('/api/download', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ url, format, bitrate, output_dir })
             });
-
-            const data = await res.json();
-            if (!res.ok) {
-                throw new Error(data.detail || 'Error al iniciar la descarga.');
-            }
 
             currentTaskId = data.task_id;
             startPolling(currentTaskId);
 
         } catch (err) {
             progressBox.classList.add('hidden');
-            showError(err.message);
+            showError(err.message || 'Error al iniciar la descarga.');
         }
     });
 
@@ -188,9 +203,11 @@ document.addEventListener('DOMContentLoaded', () => {
         pollInterval = setInterval(async () => {
             try {
                 const res = await fetch(`/api/progress/${taskId}`);
+                if (!res.ok) {
+                    if (res.status === 404) return;
+                    throw new Error('Error al consultar el progreso.');
+                }
                 const task = await res.json();
-
-                if (!res.ok) throw new Error('Error al consultar el progreso.');
 
                 if (task.status === 'cancelled') {
                     clearInterval(pollInterval);
@@ -211,9 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     showError(task.error_message || 'Falló la descarga de las canciones.');
                 }
             } catch (err) {
-                clearInterval(pollInterval);
-                progressBox.classList.add('hidden');
-                showError(err.message);
+                console.warn('Polled error:', err);
             }
         }, 1200);
     }
@@ -260,7 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
             downloadButtons.appendChild(zipBtn);
         }
 
-        // Mostrar botones individuales y ubicación de guardado
+        // Mostrar botones individuales
         files.forEach((file) => {
             const fileUrl = `/api/files/${taskId}/${encodeURIComponent(file.filename)}`;
             const fileBtn = document.createElement('a');
