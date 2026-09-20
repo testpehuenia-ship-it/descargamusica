@@ -117,6 +117,7 @@ def run_spotdl_download_process(task_id: str, url: str, output_format: str, bitr
         "--output", output_dir,
         "--format", output_format,
         "--bitrate", bitrate,
+        "--threads", "1",
         "--audio", "youtube-music", "youtube", "soundcloud", "piped"
     ]
 
@@ -211,6 +212,9 @@ def run_spotdl_download_process(task_id: str, url: str, output_format: str, bitr
                 })
 
             task["zip_files"] = zip_files
+
+        import gc
+        gc.collect()
 
         task["progress"] = 100
         task["status"] = "completed"
